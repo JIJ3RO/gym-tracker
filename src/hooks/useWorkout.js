@@ -117,6 +117,20 @@ export function useWorkout() {
     }
   };
 
+  const importData = (jsonData) => {
+    try {
+      const data = JSON.parse(jsonData);
+      if (data && (Array.isArray(data.exercises) || Array.isArray(data.history))) {
+        if (Array.isArray(data.exercises)) setExercises(data.exercises);
+        if (Array.isArray(data.history)) setHistory(data.history);
+        return true;
+      }
+    } catch (e) {
+      console.error("Error parsing backup data:", e);
+    }
+    return false;
+  };
+
   return { 
     exercises, 
     history,
@@ -128,6 +142,7 @@ export function useWorkout() {
     removeSet, 
     finishWorkout,
     removeHistoryWorkout,
-    clearHistory
+    clearHistory,
+    importData
   };
 }

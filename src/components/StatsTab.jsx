@@ -1,7 +1,7 @@
 import { useState } from 'react';
-import { Trophy, Activity, Calendar, Dumbbell, BarChart3 } from 'lucide-react';
+import { Trophy, Activity, Calendar, Dumbbell, BarChart3, Download, Upload } from 'lucide-react';
 
-export default function StatsTab({ history }) {
+export default function StatsTab({ history, exercises, importData }) {
   const [preferredUnit, setPreferredUnit] = useState('kg');
 
   // Convert weight to kg for comparison
@@ -139,6 +139,40 @@ export default function StatsTab({ history }) {
     return `badge-${category.toLowerCase().replace(/\s+/g, '-')}`;
   };
 
+  const handleExport = () => {
+    try {
+      const backupData = {
+        exercises: exercises || [],
+        history: history || []
+      };
+      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(backupData));
+      const downloadAnchor = document.createElement('a');
+      downloadAnchor.setAttribute("href", dataStr);
+      downloadAnchor.setAttribute("download", `gym-tracker-backup-${new Date().toISOString().split('T')[0]}.json`);
+      document.body.appendChild(downloadAnchor);
+      downloadAnchor.click();
+      downloadAnchor.remove();
+    } catch {
+      alert("Error al exportar los datos.");
+    }
+  };
+
+  const handleImport = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const fileReader = new FileReader();
+    fileReader.readAsText(file, "UTF-8");
+    fileReader.onload = (event) => {
+      const success = importData(event.target.result);
+      if (success) {
+        alert("¡Copia de seguridad importada con éxito!");
+      } else {
+        alert("Error al importar el archivo. Formato no válido.");
+      }
+    };
+  };
+
   return (
     <div className="layout-padding flex-col gap-4" style={{ paddingBottom: '100px' }}>
       
@@ -229,7 +263,7 @@ export default function StatsTab({ history }) {
             No hay récords registrados aún.
           </p>
         ) : (
-          <div className="flex-col gap-2" style={{ maxHeight: '400px', overflowY: 'auto', paddingRight: '0.25rem' }}>
+          <div className="flex-col gap-2" style={{ maxHeight: '300px', overflowY: 'auto', paddingRight: '0.25rem' }}>
             {Object.entries(prs).map(([name, data]) => {
               const displayMax1RM = preferredUnit === 'kg'
                 ? `${Math.round(fromKg(data.max1RMKg, 'kg'))} kg`
@@ -271,6 +305,57 @@ export default function StatsTab({ history }) {
             })}
           </div>
         )}
+      </div>
+
+      {/* Copia de Seguridad */}
+      <div className="glass-card flex-col gap-3" style={{ background: 'rgba(255,255,255,0.02)', marginTop: '0.5rem' }}>
+        <h3 style={{ fontSize: '1rem', color: 'white', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+          <Activity size={16} color="var(--accent-primary)" /> Copia de Seguridad
+        </h3>
+        <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', margin: 0, lineHeight: '1.4' }}>
+          Descarga una copia de seguridad para respaldar tus entrenamientos o restaura una copia anterior.
+        </p>
+        <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.25rem' }}>
+          <button 
+            onClick={handleExport} 
+            className="btn" 
+            style={{ 
+              flex: 1, 
+              padding: '0.65rem', 
+              fontSize: '0.9rem', 
+              background: 'rgba(59, 130, 246, 0.1)', 
+              border: '1px solid rgba(59, 130, 246, 0.2)',
+              color: 'var(--accent-primary)',
+              borderRadius: '8px'
+            }}
+          >
+            <Download size={16} /> Exportar
+          </button>
+          
+          <button 
+            onClick={() => document.getElementById('backup-upload').click()} 
+            className="btn" 
+            style={{ 
+              flex: 1, 
+              padding: '0.65rem', 
+              fontSize: '0.9rem', 
+              background: 'rgba(16, 185, 129, 0.1)', 
+              border: '1px solid rgba(16, 185, 129, 0.2)',
+              color: 'var(--success)',
+              borderRadius: '8px'
+            }}
+          >
+            <Upload size={16} /> Importar
+          </button>
+          
+          <input 
+            type="file" 
+            id="backup-upload" 
+            accept=".json" 
+            onChange={handleImport} 
+            style={{ display: 'none' }} 
+          />
+        </div>
       </div>
 
     </div>

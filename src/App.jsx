@@ -69,6 +69,8 @@ function App() {
         {activeTab === 'stats' && (
           <StatsTab 
             history={workoutState.history} 
+            exercises={workoutState.exercises}
+            importData={workoutState.importData}
           />
         )}
       </main>
