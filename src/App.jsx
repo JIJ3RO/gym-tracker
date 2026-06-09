@@ -4,20 +4,10 @@ import { useWorkout } from './hooks/useWorkout';
 import Dashboard from './components/Dashboard';
 import HistoryTab from './components/HistoryTab';
 import StatsTab from './components/StatsTab';
-import RestTimer from './components/RestTimer';
 
 function App() {
   const [activeTab, setActiveTab] = useState('workout'); // 'workout' | 'history' | 'stats'
   const workoutState = useWorkout();
-
-  // Rest Timer State
-  const [restDuration, setRestDuration] = useState(0);
-  const [timerTrigger, setTimerTrigger] = useState(0);
-
-  const triggerRestTimer = (secs) => {
-    setRestDuration(secs);
-    setTimerTrigger(prev => prev + 1);
-  };
 
   const getHeaderTitle = () => {
     switch (activeTab) {
@@ -54,7 +44,6 @@ function App() {
         {activeTab === 'workout' && (
           <Dashboard 
             {...workoutState} 
-            onSetAdded={triggerRestTimer} 
           />
         )}
         
@@ -74,15 +63,6 @@ function App() {
           />
         )}
       </main>
-
-      {/* Floating Rest Timer */}
-      {restDuration > 0 && (
-        <RestTimer 
-          key={timerTrigger}
-          duration={restDuration} 
-          onClose={() => setRestDuration(0)} 
-        />
-      )}
 
       {/* Bottom Navigation Menu */}
       <nav className="bottom-nav">

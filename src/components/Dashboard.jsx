@@ -10,8 +10,7 @@ export default function Dashboard({
   addSet, 
   editSet, 
   removeSet, 
-  finishWorkout,
-  onSetAdded
+  finishWorkout
 }) {
   const [newExName, setNewExName] = useState('');
   const [category, setCategory] = useState('General');
@@ -65,7 +64,6 @@ export default function Dashboard({
               exercise={ex} 
               onAddSet={(weight, reps, unit) => {
                 addSet(ex.id, weight, reps, unit);
-                if (onSetAdded) onSetAdded(90); // trigger 90s rest timer
               }}
               onRemoveSet={(setId) => removeSet(ex.id, setId)}
               onRemove={() => {
